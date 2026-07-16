@@ -1,0 +1,13 @@
+[project]
+name = "voice-to-word"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "docxtpl>=0.20.2",
+  "faster-whisper>=1.2.1",
+  "numpy>=2.5.1",
+  "rapidfuzz>=3.14.5",
+  "sounddevice>=0.5.5",
+]
