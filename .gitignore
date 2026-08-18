@@ -12,3 +12,4 @@ wheels/
 # My exclusions
 models/*
 reports/*
+templates/*
