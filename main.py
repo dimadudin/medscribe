@@ -58,7 +58,7 @@ def transcribe(audio: np.ndarray) -> str:
 
 # output parsed measurement data into JSON and DOCX formats
 def save(findings: dict[str, float | str]):
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d.%H:%M")
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d.%H_%M")
     tpl_path = TEMPLATE_PATH
     reports_dir = REPORTS_DIR
     print(f"Загрузка шаблона из {tpl_path}...")
