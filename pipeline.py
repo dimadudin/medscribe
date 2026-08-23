@@ -98,15 +98,21 @@ def save(
     findings: dict[str, float | str],
     bundle_dir: Path,
     reports_dir: Path = REPORTS_DIR,
+    transcript: str | None = None,
 ) -> tuple[Path, Path]:
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d.%H_%M")
     tpl_path = bundle_dir / "template.docx"
     print(f"Загрузка шаблона из {tpl_path}...")
     reports_dir.mkdir(parents=True, exist_ok=True)
 
+    payload: dict[str, float | str] = {}
+    if transcript is not None:
+        payload["transcript"] = transcript
+    payload.update(findings)
+
     json_path = reports_dir / f"{timestamp}.json"
     print(f"Запись протокола в {json_path}...")
-    json_path.write_text(json.dumps(findings, indent=2, ensure_ascii=False) + "\n")
+    json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
 
     docx_path = reports_dir / f"{timestamp}.docx"
     print(f"Запись протокола в {docx_path}...")

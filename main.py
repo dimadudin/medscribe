@@ -28,7 +28,7 @@ def main() -> None:
 
     transcript = Transcriber().transcribe(audio)
     findings = parse(transcript, config)
-    save(findings, template_dir)
+    save(findings, template_dir, transcript=transcript)
 
 
 if __name__ == "__main__":

@@ -131,7 +131,9 @@ class MedScribeApp(QMainWindow):
             config = load_config(self._template_dir / "fields.toml")
             findings = parse(transcript, config)
             self._signals.status.emit("Сохранение...")
-            json_path, docx_path = save(findings, self._template_dir)
+            json_path, docx_path = save(
+                findings, self._template_dir, transcript=transcript
+            )
             self._signals.done.emit(f"Готово:\n{json_path}\n{docx_path}")
         except Exception as e:
             self._signals.error.emit(str(e))
