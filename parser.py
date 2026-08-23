@@ -62,14 +62,93 @@ FILLER_WORDS = frozenset(
     }
 )
 
-NUMBER_PATTERN = re.compile(r"(\d+(?:\.\d+)?)")
+NUMBER_PATTERN = re.compile(r"(\d+(?:[.,]\d+)*)")
 MATCH_THRESHOLD = 80
+
+
+def _token_variants(token: str) -> list[list[float]]:
+    parts = token.split(",")
+    if len(parts) == 1:
+        return [[float(token)]]
+
+    merge_first = parts[0] == "0" or (len(parts) == 2 and len(parts[-1]) == 1)
+
+    def step(
+        i: int, acc: list[float]
+    ) -> tuple[tuple[int, list[float]] | None, tuple[int, list[float]] | None]:
+        merged: tuple[int, list[float]] | None = None
+        separated: tuple[int, list[float]] | None = None
+        if i + 1 < len(parts) and parts[i + 1] != "0":
+            merged = (i + 2, acc + [float(f"{parts[i]}.{parts[i + 1]}")])
+        if parts[i] != "0":
+            separated = (i + 1, acc + [float(parts[i])])
+        return merged, separated
+
+    variants: list[list[float]] = []
+    stack = [(0, [])]
+    while stack:
+        i, acc = stack.pop()
+        if i == len(parts):
+            variants.append(acc)
+            continue
+        merged, separated = step(i, acc)
+        if merge_first:
+            branches = [b for b in (merged, separated) if b]
+        else:
+            branches = [b for b in (separated, merged) if b]
+        stack.extend(reversed(branches))
+
+    return variants
+
+
+def _select_numbers(tokens: list[str], count: int) -> list[float]:
+    option_lists = [_token_variants(t) for t in tokens]
+
+    if count > 1:
+        found: list[float] | None = None
+
+        def dfs(i: int, acc: list[float]) -> None:
+            nonlocal found
+            if found is not None or len(acc) > count:
+                return
+            if len(acc) == count:
+                found = acc.copy()
+                return
+            if i == len(option_lists):
+                return
+            for variant in option_lists[i]:
+                dfs(i + 1, acc + variant)
+                if found is not None:
+                    return
+
+        dfs(0, [])
+        if found is not None:
+            return found
+
+    out: list[float] = []
+    for options in option_lists:
+        out.extend(options[0])
+    return out
 
 
 def _normalize(text: str) -> str:
     words = text.lower().split()
     words = [w for w in words if w not in FILLER_WORDS]
     return " ".join(words)
+
+
+NUMERIC_TOKEN = re.compile(r"\d+(?:[.,]\d+)*")
+
+
+def _is_numeric_token(token: str) -> bool:
+    return NUMERIC_TOKEN.fullmatch(token.strip(".,;:")) is not None
+
+
+def _tokens_compatible(alias_words: list[str], window_words: list[str]) -> bool:
+    return all(
+        _is_numeric_token(a) == _is_numeric_token(w)
+        for a, w in zip(alias_words, window_words)
+    )
 
 
 def _find_all_matches(
@@ -83,7 +162,10 @@ def _find_all_matches(
         alias_len = len(alias_words)
 
         for start in range(len(words) - alias_len + 1):
-            window = " ".join(words[start : start + alias_len])
+            window_words = words[start : start + alias_len]
+            if not _tokens_compatible(alias_words, window_words):
+                continue
+            window = " ".join(window_words)
             score = fuzz.ratio(window, alias)
             if score >= MATCH_THRESHOLD:
                 matches.append((score, start, start + alias_len))
@@ -109,6 +191,7 @@ def _extract_after(
     after_word_idx: int,
     kind: Literal["number", "text"],
     count: int = 1,
+    hard_stop: int | None = None,
 ) -> float | list[float] | str | None:
     words = text.split()
     remaining_words = words[after_word_idx:]
@@ -119,16 +202,19 @@ def _extract_after(
             1 if after_word_idx > 0 else 0
         )
         boundary = _find_next_alias(text, char_start, config.all_aliases)
+        if hard_stop is not None and (boundary is None or hard_stop < boundary):
+            boundary = hard_stop
+        strip_chars = ' \t\n.,;:"«»'
         if boundary is not None:
-            extracted = text[char_start:boundary].strip()
+            extracted = text[char_start:boundary].strip(strip_chars)
         else:
-            extracted = text[char_start:].strip()
+            extracted = text[char_start:].strip(strip_chars)
         return extracted if extracted else None
     else:
-        numbers = NUMBER_PATTERN.findall(remaining)
-        if not numbers:
+        tokens = NUMBER_PATTERN.findall(remaining)
+        if not tokens:
             return None
-        floats = [float(n) for n in numbers]
+        floats = _select_numbers(tokens, count)
         if count == 1:
             return floats[0]
         return floats[:count]
@@ -144,6 +230,8 @@ def parse(transcript: str, config: Config) -> dict[str, float | str]:
 
     findings: dict[str, float | str] = {}
     consumed: set[int] = set()
+    attempted_groups: set[str] = set()
+    attempted_fields: set[str] = set()
 
     group_candidates: list[tuple[float, str, str, int, int]] = []
     for name, group in config.groups.items():
@@ -152,22 +240,28 @@ def parse(transcript: str, config: Config) -> dict[str, float | str]:
             alias_words = alias.split()
             alias_len = len(alias_words)
             for start in range(len(words) - alias_len + 1):
-                window = " ".join(words[start : start + alias_len])
+                window_words = words[start : start + alias_len]
+                if not _tokens_compatible(alias_words, window_words):
+                    continue
+                window = " ".join(window_words)
                 score = fuzz.ratio(window, alias)
                 if score >= MATCH_THRESHOLD:
                     group_candidates.append(
                         (score, name, alias, start, start + alias_len)
                     )
     group_candidates.sort(key=lambda c: (c[0], c[4] - c[3]), reverse=True)
+    group_spans: list[tuple[int, int]] = []
 
     for _, name, alias, start, end in group_candidates:
         span = set(range(start, end))
         if span & consumed:
             continue
         group = config.groups[name]
-        if any(f in findings for f in group.fields):
+        if name in attempted_groups or any(f in findings for f in group.fields):
             continue
+        attempted_groups.add(name)
         consumed |= span
+        group_spans.append((start, end))
         values = _extract_after(config, normalized, end, "number", count=group.count)
         if isinstance(values, list):
             for field_name, val in zip(group.fields, values):
@@ -181,12 +275,27 @@ def parse(transcript: str, config: Config) -> dict[str, float | str]:
             field_candidates.append((score, name, start, end))
     field_candidates.sort(key=lambda c: (c[0], c[3] - c[2]), reverse=True)
 
+    words = normalized.split()
+    word_starts: list[int] = []
+    pos = 0
+    for w in words:
+        word_starts.append(pos)
+        pos += len(w) + 1
+    all_spans = group_spans + [(s, e) for _, _, s, e in field_candidates]
+
     for _, name, start, end in field_candidates:
-        if _overlaps((start, end), consumed):
+        if name in attempted_fields or _overlaps((start, end), consumed):
             continue
+        attempted_fields.add(name)
+        consumed.update(range(start, end))
         consumed.update(range(start, end))
         field = config.fields[name]
-        value = _extract_after(config, normalized, end, field.kind)
+        hard_stop = None
+        if field.kind == "text":
+            stops = [s for s, _ in all_spans if s >= end]
+            if stops:
+                hard_stop = word_starts[min(stops)]
+        value = _extract_after(config, normalized, end, field.kind, hard_stop=hard_stop)
         if isinstance(value, list):
             raise TypeError(f"Unexpected list value for field {name}")
         if value is not None:
