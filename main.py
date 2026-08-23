@@ -14,7 +14,7 @@ MODELS_DIR = Path("models")
 MODEL_NAME = "whisper-small"
 MODEL_PATH = (MODELS_DIR / MODEL_NAME).as_posix()
 
-REPORT_TYPES_DIR = Path("report_types")
+TEMPLATES_DIR = Path("templates")
 REPORTS_DIR = Path("reports")
 
 
@@ -52,22 +52,22 @@ def transcribe(audio: np.ndarray) -> str:
     return transcript
 
 
-def discover_report_types() -> dict[str, Path]:
+def discover_templates() -> dict[str, Path]:
     bundles = {
         d.name: d
-        for d in sorted(REPORT_TYPES_DIR.iterdir())
+        for d in sorted(TEMPLATES_DIR.iterdir())
         if d.is_dir()
         and (d / "fields.toml").is_file()
         and (d / "template.docx").is_file()
     }
     if not bundles:
         raise RuntimeError(
-            f"Ошибка: не найдено ни одного типа отчётов в {REPORT_TYPES_DIR}/"
+            f"Ошибка: не найдено ни одного типа отчётов в {TEMPLATES_DIR}/"
         )
     return bundles
 
 
-def select_report_type(bundles: dict[str, Path]) -> Path:
+def select_template(bundles: dict[str, Path]) -> Path:
     print("Доступные типы отчётов:")
     for i, name in enumerate(bundles, 1):
         print(f"  {i}) {name}")
@@ -98,7 +98,7 @@ def save(findings: dict[str, float | str], bundle_dir: Path):
 
 
 def main() -> None:
-    bundle_dir = select_report_type(discover_report_types())
+    bundle_dir = select_template(discover_templates())
     config = load_config(bundle_dir / "fields.toml")
     audio = record()
     transcript = transcribe(audio)
