@@ -16,7 +16,7 @@ class Field:
 
 @dataclass
 class Group:
-    alias: str
+    aliases: tuple[str, ...]
     fields: tuple[str, ...]
     count: int = -1  # -1 = all remaining numbers
 
@@ -36,12 +36,16 @@ def load_config(path: Path) -> Config:
         name: Field(tuple(spec["aliases"]), spec["kind"], spec.get("default"))
         for name, spec in data.get("fields", {}).items()
     }
-    groups = {
-        name: Group(spec["alias"], tuple(spec["fields"]), spec.get("count", -1))
-        for name, spec in data.get("groups", {}).items()
-    }
+    groups = {}
+    for name, spec in data.get("groups", {}).items():
+        aliases = spec["aliases"] if "aliases" in spec else [spec["alias"]]
+        groups[name] = Group(
+            tuple(aliases),
+            tuple(spec["fields"]),
+            spec.get("count", -1),
+        )
     all_aliases = [a for f in fields.values() for a in f.aliases]
-    all_aliases.extend(g.alias for g in groups.values())
+    all_aliases.extend(a for g in groups.values() for a in g.aliases)
 
     return Config(fields=fields, groups=groups, all_aliases=all_aliases)
 
@@ -144,15 +148,16 @@ def parse(transcript: str, config: Config) -> dict[str, float | str]:
     group_candidates: list[tuple[float, str, str, int, int]] = []
     for name, group in config.groups.items():
         words = normalized.split()
-        alias_words = group.alias.split()
-        alias_len = len(alias_words)
-        for start in range(len(words) - alias_len + 1):
-            window = " ".join(words[start : start + alias_len])
-            score = fuzz.ratio(window, group.alias)
-            if score >= MATCH_THRESHOLD:
-                group_candidates.append(
-                    (score, name, group.alias, start, start + alias_len)
-                )
+        for alias in group.aliases:
+            alias_words = alias.split()
+            alias_len = len(alias_words)
+            for start in range(len(words) - alias_len + 1):
+                window = " ".join(words[start : start + alias_len])
+                score = fuzz.ratio(window, alias)
+                if score >= MATCH_THRESHOLD:
+                    group_candidates.append(
+                        (score, name, alias, start, start + alias_len)
+                    )
     group_candidates.sort(key=lambda c: (c[0], c[4] - c[3]), reverse=True)
 
     for _, name, alias, start, end in group_candidates:
