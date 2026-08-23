@@ -39,7 +39,7 @@ def record(samplerate: int = 16000) -> np.ndarray:
 # process audio tokens into a string
 def transcribe(audio: np.ndarray) -> str:
     print(f"Загрузка модели из {MODEL_PATH}...")
-    model = WhisperModel(MODEL_PATH, device="auto", compute_type="default")
+    model = WhisperModel(MODEL_PATH, device="auto", compute_type="float32")
     print("Транскрипция...")
     segments, _ = model.transcribe(
         audio,
