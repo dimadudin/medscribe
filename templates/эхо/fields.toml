@@ -1,0 +1,349 @@
+[fields.BSA]
+aliases = ["бса", "индекс поверхности тела", "площадь поверхности тела"]
+kind = "number"
+
+[fields.SHR]
+aliases = ["чсс", "частота сердечных сокращений"]
+kind = "number"
+
+[fields.H]
+aliases = ["рост"]
+kind = "number"
+
+[fields.S]
+aliases = ["пол"]
+kind = "text"
+
+[fields.Ao_Sin]
+aliases = ["синусы вальсальвы", "аорта синусы вальсальвы", "диаметр аорты на уровне синусов вальсальвы"]
+kind = "number"
+
+[fields.Ao_AV]
+aliases = ["аортальное кольцо", "аорта на уровне клапана", "диаметр аорты на уровне аортального клапана"]
+kind = "number"
+
+[fields.Ao_Asc]
+aliases = ["восходящая", "аорта восходящая", "диаметр аорты в восходящем отделе"]
+kind = "number"
+
+[fields.Ao_Arch]
+aliases = ["дуга", "аорта дуга", "диаметр аортальной дуги"]
+kind = "number"
+
+[fields.Ao_Desc]
+aliases = ["нисходящая", "аорта нисходящая", "диаметр аорты в нисходящем отделе"]
+kind = "number"
+
+[fields.Ao_Desc_V]
+aliases = ["скорость в нисходящей", "аорта нисходящая скорость", "скорость аорты в нисходящем отделе"]
+kind = "number"
+
+[fields.LA_APD]
+aliases = ["плакс лп", "левое предсердие переднезадний", "переднезадний левого предсердия"]
+kind = "number"
+
+[fields.LA_Vol]
+aliases = ["лп объем", "левое предсердие объем", "объем левого предсердия"]
+kind = "number"
+
+[fields.LV_EDV]
+aliases = ["кдо", "конечно диастолический объем"]
+kind = "number"
+
+[fields.LV_ESV]
+aliases = ["ксо", "конечно систолический объем"]
+kind = "number"
+
+[fields.IVS_B]
+aliases = ["мжп б режим"]
+kind = "number"
+
+[fields.IAS_D]
+aliases = ["мпп", "межпредсердная перегородка"]
+kind = "text"
+default = "дефекта нет"
+
+[fields.IVS_D]
+aliases = ["мжп шунт", "межжелудочковая перегородка шунт"]
+kind = "text"
+default = "дефекта нет"
+
+[fields.LV_Mass]
+aliases = ["масса миокарда", "лж масса миокарда", "левый желудочек масса миокарда"]
+kind = "number"
+
+[fields.LV_LCD]
+aliases = ["нарушение сократимости"]
+kind = "text"
+default = "нет"
+
+[fields.RAS]
+aliases = ["пп площадь", "площадь пп", "правое предсердие плoщадь", "площадь правое предсердие"]
+kind = "number"
+
+[fields.RAV]
+aliases = ["пп объем", "объем пп", "правое предсердие объем", "объем правое предсердие"]
+kind = "number"
+
+[fields.RVAPD]
+aliases = ["плакс пж", "пж плакс", "пж переднезадний", "переднезадний пж"]
+kind = "number"
+
+[fields.RVIT]
+aliases = ["приточный тракт", "пж приточный тракт"]
+kind = "number"
+
+[fields.RVOT]
+aliases = ["выходной тракт пж", "пж выходной тракт"]
+kind = "number"
+
+[fields.RVFWd]
+aliases = ["толщина стенки"]
+kind = "number"
+
+[fields.AV_LD]
+aliases = ["аортальный клапан створки"]
+kind = "text"
+default = "фиброза нет"
+
+[fields.AV_VEL]
+aliases = ["аортальный клапан скорость"]
+kind = "number"
+
+[fields.AV_VTI]
+aliases = ["интеграл скорости аортального клапана"]
+kind = "number"
+
+[fields.AVA]
+aliases = ["аортальный клапан отверстие"]
+kind = "number"
+
+[fields.AV_R]
+aliases = ["аортальная регургитация", "регургитация на аортальном клапане"]
+kind = "text"
+default = "нет"
+
+[fields.AV_PG]
+aliases = ["аортальный градиент регургитации"]
+kind = "number"
+
+[fields.AV_VC]
+aliases = ["ак веноконтракта", "аортальный клапан веноконтракта"]
+kind = "number"
+
+[fields.AV_ERO]
+aliases = ["ак ро", "аортальный клапан ро"]
+kind = "number"
+
+[fields.AV_AR]
+aliases = ["ак объем регургитации", "аортальный клапан объем регургитации"]
+kind = "number"
+
+[fields.AV_PHT]
+aliases = ["ак полуспад давления", "аортальный клапан полуспад давления"]
+kind = "number"
+
+[fields.AV_JET]
+aliases = ["ширина регургитации"]
+kind = "number"
+
+[fields.EDAR]
+aliases = ["конечно диастолическая скорость аортальной регургитации"]
+kind = "number"
+
+[fields.LVOT]
+aliases = ["выходной тракт"]
+kind = "number"
+
+[fields.LVOT_VEL]
+aliases = ["выходной тракт скорость", "скорость на выходном тракте"]
+kind = "number"
+
+[fields.LVOT_VTI]
+aliases = ["интеграл скорости выходного тракта"]
+kind = "number"
+
+[fields.MV_LD]
+aliases = ["митральный клапан створки"]
+kind = "text"
+default = "фиброза нет"
+
+[fields.MVA]
+aliases = ["митральный клапан отверстие"]
+kind = "number"
+
+[fields.IVRT]
+aliases = ["вир"]
+kind = "number"
+
+[fields.DT]
+aliases = ["дт"]
+kind = "number"
+
+[fields.MV_R]
+aliases = ["митральная регургитация", "регургитация на митральном клапане"]
+kind = "text"
+default = "1 степени"
+
+[fields.MR_PG]
+aliases = ["мк градиент регургитации"]
+kind = "number"
+
+[fields.MR_VC]
+aliases = ["мк веноконтракта", "митральный клапан веноконтракта"]
+kind = "number"
+
+[fields.MR_ERO]
+aliases = ["мк ро", "митральный клапан ро"]
+kind = "number"
+
+[fields.MR_VOL]
+aliases = ["мк объем регургитации", "митральный клапан объем регургитации"]
+kind = "number"
+
+[fields.MR_PISA]
+aliases = ["р пиза", "мк радиус пиза", "митральный клапан радиус пиза"]
+kind = "number"
+
+[fields.MV_ESEPT]
+aliases = ["е септальная", "митральный клапан е септальная"]
+kind = "number"
+
+[fields.MV_FD]
+aliases = ["фиброзное кольцо"]
+kind = "number"
+
+[fields.MAPSE]
+aliases = ["мапсе", "мапси"]
+kind = "number"
+
+[fields.PA_D]
+aliases = ["легочная артерия", "легочный ствол"]
+kind = "number"
+
+[fields.PA_BRANCH]
+aliases = ["легочные ветви", "ветви легочной артерии"]
+kind = "number"
+
+[fields.PA_EDPR]
+aliases = ["едпр"]
+kind = "number"
+
+[fields.PV_VEL]
+aliases = ["ла скорость"]
+kind = "number"
+
+[fields.PV_R]
+aliases = ["легочная регургитация", "регургитация на легочной артерии"]
+kind = "text"
+default = "1 степени"
+
+[fields.PV_AT]
+aliases = ["ат"]
+kind = "number"
+
+[fields.TV_LD]
+aliases = ["трикус створки"]
+kind = "text"
+default = "фиброза нет"
+
+[fields.TV_R]
+aliases = ["трикуспидальная регургитация", "регургитация на трикуспидальном клапане"]
+kind = "text"
+default = "1 степени"
+
+[fields.TR_PG]
+aliases = ["трикус градиент регургитации", "трикуспидальный клапан градиент регургитации"]
+kind = "number"
+
+[fields.TR_VEL]
+aliases = ["скорость регургитации"]
+kind = "number"
+
+[fields.PASP]
+aliases = ["дла систолическое"]
+kind = "number"
+
+[fields.TR_VC]
+aliases = ["тк веноконтракта", "трикуспидальный клапан веноконтракта"]
+kind = "number"
+
+[fields.TAPSE]
+aliases = ["тапсе", "тапси"]
+kind = "number"
+
+[fields.ABD]
+aliases = ["брюшная аорта"]
+kind = "number"
+
+[fields.ABD_D]
+aliases = ["брюшная аорта особенности"]
+kind = "text"
+default = "поток магистральный"
+
+[fields.MISC1]
+aliases = ["особенности 1"]
+kind = "text"
+
+[fields.MISC2]
+aliases = ["особенности 2"]
+kind = "text"
+
+[fields.MISC3]
+aliases = ["особенности 3"]
+kind = "text"
+
+[groups."лп_4к"]
+alias = "лп 4 ac"
+fields = ["LA_4C1", "LA_4C2"]
+count = 2
+
+[groups."лж_о"]
+alias = "кдр"
+fields = ["LVID_d", "LVID_s"]
+count = 2
+
+[groups."мжп"]
+alias = "мжп"
+fields = ["IVS_d", "IVS_s", "IVS_E"]
+count = 3
+
+[groups."зс"]
+alias = "задняя стенка"
+fields = ["LVPW_d", "LVPW_s", "LVPW_E"]
+count = 3
+
+[groups."пп_4к"]
+alias = "пп 4 ac"
+fields = ["RA_4C1", "RA_4C2"]
+count = 2
+
+[groups."пж_4к"]
+alias = "пж 4 ac"
+fields = ["RV_4C1", "RV_4C2"]
+count = 2
+
+[groups."мк_ea"]
+alias = "митральный клапан е"
+fields = ["MV_E", "MV_A"]
+count = 2
+
+[groups."мк_допплер"]
+alias = "мк тканевой допплер"
+fields = ["MV_SM", "MV_ELAT", "MV_AM"]
+count = 3
+
+[groups."тк_ea"]
+alias = "трикуспидальный клапан е"
+fields = ["TV_E", "TV_A"]
+count = 2
+
+[groups."тк_нпв"]
+alias = "полая"
+fields = ["IVC_IN", "IVC_OUT"]
+count = 2
+
+[groups."тк_допплер"]
+alias = "тк тканевой допплер"
+fields = ["TV_SM", "TV_EM", "TV_AM"]
+count = 3

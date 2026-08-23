@@ -19,19 +19,15 @@ Audio (mic) → faster-whisper → transcript parser (RapidFuzz) → JSON + DOCX
 
 ```bash
 git clone git@github.com:dimadudin/medscribe.git
-cd medscribe
-
-# Create directories
-mkdir -p models reports templates
 
 # Download the Whisper model (~500 MB)
+cd medscribe
+mkdir -p models
 uv run python -c "
 from huggingface_hub import snapshot_download
 snapshot_download('Systran/faster-whisper-small', local_dir='./models/whisper-small')
 "
 ```
-
-Place your DOCX template with Jinja2 placeholders in `templates/`.
 
 ## Usage
 
@@ -39,7 +35,7 @@ Place your DOCX template with Jinja2 placeholders in `templates/`.
 uv run main.py
 ```
 
-The tool will start recording audio. Speak the measurements (e.g., "чсс 72, аорта синусы вальсальвы 34"). The report will be saved to `reports/` as both JSON and DOCX.
+Pick a report type from the menu, then speak the measurements (e.g., "чсс 72, аорта синусы вальсальвы 34"). The report will be saved to `reports/` as both JSON and DOCX.
 
 ## Template format
 
@@ -55,8 +51,6 @@ numeric fields, text fields, multi-value groups, computed formulas.
 
 ## TODOs
 
-- couple templates with parser field dicts
-- support template selection
 - implement UI
 - support fuzzy match accuracy dial
 - tweak aliases

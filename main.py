@@ -7,21 +7,17 @@ from faster_whisper import WhisperModel
 import numpy as np
 import sounddevice as sd
 
-from parser import parse
+from parser import load_config, parse
 
 
 MODELS_DIR = Path("models")
 MODEL_NAME = "whisper-small"
 MODEL_PATH = (MODELS_DIR / MODEL_NAME).as_posix()
 
-TEMPLATE_DIR = Path("templates")
-TEMPLATE_NAME = "шаблон-эхо-кардиограмма.docx"
-TEMPLATE_PATH = TEMPLATE_DIR / TEMPLATE_NAME
-
+REPORT_TYPES_DIR = Path("report_types")
 REPORTS_DIR = Path("reports")
 
 
-# process mic input into a list of audio tokens (IDK I'm just making this up)
 def record(samplerate: int = 16000) -> np.ndarray:
     print("Запись... нажмите Enter, чтобы остановить")
     frames: list[np.ndarray] = []
@@ -56,18 +52,45 @@ def transcribe(audio: np.ndarray) -> str:
     return transcript
 
 
+def discover_report_types() -> dict[str, Path]:
+    bundles = {
+        d.name: d
+        for d in sorted(REPORT_TYPES_DIR.iterdir())
+        if d.is_dir()
+        and (d / "fields.toml").is_file()
+        and (d / "template.docx").is_file()
+    }
+    if not bundles:
+        raise RuntimeError(
+            f"Ошибка: не найдено ни одного типа отчётов в {REPORT_TYPES_DIR}/"
+        )
+    return bundles
+
+
+def select_report_type(bundles: dict[str, Path]) -> Path:
+    print("Доступные типы отчётов:")
+    for i, name in enumerate(bundles, 1):
+        print(f"  {i}) {name}")
+
+    while True:
+        choice = input("Выберите номер: ").strip()
+        if choice.isdigit() and 1 <= int(choice) <= len(bundles):
+            return bundles[list(bundles)[int(choice) - 1]]
+        print(f"Ошибка: введите число от 1 до {len(bundles)}")
+
+
 # output parsed measurement data into JSON and DOCX formats
-def save(findings: dict[str, float | str]):
+def save(findings: dict[str, float | str], bundle_dir: Path):
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d.%H_%M")
-    tpl_path = TEMPLATE_PATH
-    reports_dir = REPORTS_DIR
+    tpl_path = bundle_dir / "template.docx"
     print(f"Загрузка шаблона из {tpl_path}...")
+    REPORTS_DIR.mkdir(exist_ok=True)
 
-    filepath = reports_dir / f"{timestamp}.json"
+    filepath = REPORTS_DIR / f"{timestamp}.json"
     print(f"Запись протокола в {filepath}...")
-    filepath.write_text(json.dumps(findings, indent=2) + "\n")
+    filepath.write_text(json.dumps(findings, indent=2, ensure_ascii=False) + "\n")
 
-    filepath = reports_dir / f"{timestamp}.docx"
+    filepath = REPORTS_DIR / f"{timestamp}.docx"
     print(f"Запись протокола в {filepath}...")
     tpl = DocxTemplate(tpl_path)
     tpl.render(findings)
@@ -75,10 +98,12 @@ def save(findings: dict[str, float | str]):
 
 
 def main() -> None:
+    bundle_dir = select_report_type(discover_report_types())
+    config = load_config(bundle_dir / "fields.toml")
     audio = record()
     transcript = transcribe(audio)
-    findings = parse(transcript)
-    save(findings)
+    findings = parse(transcript, config)
+    save(findings, bundle_dir)
 
 
 if __name__ == "__main__":
