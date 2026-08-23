@@ -35,7 +35,15 @@ snapshot_download('Systran/faster-whisper-small', local_dir='./models/whisper-sm
 uv run main.py
 ```
 
-Pick a report type from the menu, then speak the measurements (e.g., "чсс 72, аорта синусы вальсальвы 34"). The report will be saved to `reports/` as both JSON and DOCX.
+Pick a template from the menu, then speak the measurements (e.g., "чсс 72, аорта синусы вальсальвы 34"). The report will be saved to `reports/` as both JSON and DOCX.
+
+### GUI
+
+```bash
+uv run gui.py
+```
+
+Same pipeline with a window: pick a template, start/stop recording with a button.
 
 ## Template format
 
@@ -48,9 +56,10 @@ numeric fields, text fields, multi-value groups, computed formulas.
 - [RapidFuzz](https://github.com/maxbachmann/RapidFuzz) — fuzzy string matching for alias resolution
 - [docxtpl](https://github.com/BouffardSio/docxtpl) — DOCX template rendering with Jinja2
 - [sounddevice](https://python-sounddevice.readthedocs.io/) — audio recording
+- [PySide6](https://wiki.qt.io/PySide6) — GUI
 
 ## TODOs
 
-- implement UI
 - support fuzzy match accuracy dial
 - tweak aliases
+- package as a Windows executable

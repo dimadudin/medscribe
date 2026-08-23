@@ -190,7 +190,7 @@ def parse(transcript: str, config: Config) -> dict[str, float | str]:
             findings[name] = field.default
 
     if not findings:
-        print("Ошибка: не удалось распознать характеристики")
+        raise ValueError("Ошибка: не удалось распознать характеристики")
 
     for name, value in findings.items():
         print(f"{name}: {value}")
