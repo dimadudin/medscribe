@@ -199,7 +199,9 @@ def save(
 
     json_path = reports_dir / f"{timestamp}.json"
     print(f"Запись протокола в {json_path}...")
-    json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
+    json_path.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
 
     docx_path = reports_dir / f"{timestamp}.docx"
     print(f"Запись протокола в {docx_path}...")
