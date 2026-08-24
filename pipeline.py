@@ -1,8 +1,15 @@
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
+
+if getattr(sys, "frozen", False):
+    if sys.stdout is None:
+        sys.stdout = open(os.devnull, "w", encoding="utf-8")
+    if sys.stderr is None:
+        sys.stderr = open(os.devnull, "w", encoding="utf-8")
 
 import numpy as np
 import sounddevice as sd
@@ -29,6 +36,11 @@ def _progress_tqdm_class(on_percent: Callable[[int], None]) -> type[tqdm]:
     seen: dict[int, tuple[float, float]] = {}
 
     class _Progress(tqdm):
+        def __init__(self, *args, **kwargs):
+            if kwargs.get("file") is None and sys.stderr is None:
+                kwargs["file"] = open(os.devnull, "w", encoding="utf-8")
+            super().__init__(*args, **kwargs)
+
         def update(self, n=1):
             super().update(n)
             seen[id(self)] = (self.n or 0, self.total or 0)
