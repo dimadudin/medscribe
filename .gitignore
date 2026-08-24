@@ -10,7 +10,6 @@ wheels/
 .venv
 
 # My exclusions
-models/*
 reports/*
 templates/*
 !templates/эхо

@@ -19,15 +19,10 @@ Audio (mic) → faster-whisper → transcript parser (RapidFuzz) → JSON + DOCX
 
 ```bash
 git clone git@github.com:dimadudin/medscribe.git
-
-# Download the Whisper model (~500 MB)
-cd medscribe
-mkdir -p models
-uv run python -c "
-from huggingface_hub import snapshot_download
-snapshot_download('Systran/faster-whisper-small', local_dir='./models/whisper-small')
-"
 ```
+
+The Whisper model (~500 MB) is fetched from Hugging Face automatically on first launch
+and cached in `~/.cache/huggingface` (`%USERPROFILE%\.cache\huggingface` on Windows).
 
 ## Usage
 

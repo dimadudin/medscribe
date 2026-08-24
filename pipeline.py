@@ -1,15 +1,16 @@
-from datetime import datetime, timezone
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from docxtpl import DocxTemplate
-from docx import Document
-from faster_whisper import WhisperModel
-from huggingface_hub import snapshot_download
 import numpy as np
 import sounddevice as sd
+from docx import Document
+from docxtpl import DocxTemplate
+from faster_whisper import WhisperModel
+from huggingface_hub import snapshot_download
+from tqdm import tqdm
 
 
 def base_dir() -> Path:
@@ -18,26 +19,25 @@ def base_dir() -> Path:
     return Path(__file__).parent
 
 
-MODELS_DIR = base_dir() / "models"
-MODEL_NAME = "whisper-small"
-MODEL_PATH = (MODELS_DIR / MODEL_NAME).as_posix()
-MODEL_REPO = "Systran/faster-whisper-small"
-
 TEMPLATES_DIR = base_dir() / "templates"
 REPORTS_DIR = base_dir() / "reports"
 
+MODEL_REPO = "Systran/faster-whisper-small"
 
-def ensure_model(
-    model_path: str = MODEL_PATH, log: Callable[[str], None] = print
-) -> str:
-    path = Path(model_path)
-    if (path / "model.bin").is_file():
-        return model_path
-    log(f"Модель не найдена в {path}")
-    log(f"Загрузка модели из Hugging Face ({MODEL_REPO})...")
-    snapshot_download(MODEL_REPO, local_dir=path)
-    log("Модель загружена.")
-    return model_path
+
+def _progress_tqdm_class(on_percent: Callable[[int], None]) -> type[tqdm]:
+    seen: dict[int, tuple[float, float]] = {}
+
+    class _Progress(tqdm):
+        def update(self, n=1):
+            super().update(n)
+            seen[id(self)] = (self.n or 0, self.total or 0)
+            total = sum(t for _, t in seen.values())
+            if total:
+                done = sum(v for v, _ in seen.values())
+                on_percent(min(100, int(done / total * 100)))
+
+    return _Progress
 
 
 class Recorder:
@@ -76,12 +76,12 @@ class Recorder:
 class Transcriber:
     def __init__(
         self,
-        model_path: str = MODEL_PATH,
+        model_repo: str = MODEL_REPO,
         device: str = "auto",
         compute_type: str = "int8",
         log: Callable[[str], None] = print,
     ):
-        self._model_path = model_path
+        self._model_repo = model_repo
         self._device = device
         self._compute_type = compute_type
         self._log = log
@@ -89,10 +89,21 @@ class Transcriber:
 
     def transcribe(self, audio: np.ndarray) -> str:
         if self._model is None:
-            model_path = ensure_model(self._model_path, self._log)
-            self._log(f"Загрузка модели из {model_path}...")
+            last_pct = -1
+
+            def on_percent(pct: int) -> None:
+                nonlocal last_pct
+                if pct != last_pct:
+                    last_pct = pct
+                    self._log(f"Загрузка модели... {pct}%")
+
+            self._log(f"Загрузка модели из Hugging Face ({self._model_repo})...")
+            snapshot_download(
+                self._model_repo, tqdm_class=_progress_tqdm_class(on_percent)
+            )
+            self._log("Модель загружена.")
             self._model = WhisperModel(
-                model_path,
+                self._model_repo,
                 device=self._device,
                 compute_type=self._compute_type,
             )
