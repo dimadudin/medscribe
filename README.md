@@ -65,13 +65,6 @@ uv sync
 uv run pyinstaller --noconfirm --name MedScribe --windowed --collect-all faster_whisper gui.py
 ```
 
-Neither models nor templates are included in the artifact:
-
-- the Whisper model (~500 MB) is downloaded from Hugging Face on first launch
-  (internet required once); a pre-downloaded `models/whisper-small` folder can
-  be placed next to the exe instead;
-- a `templates/` folder must be placed next to the exe.
-
 ## TODOs
 
 - support fuzzy match accuracy dial
