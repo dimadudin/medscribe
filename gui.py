@@ -35,7 +35,7 @@ class MedScribeApp(QMainWindow):
         self._signals = WorkerSignals()
 
         self._recorder = Recorder()
-        self._transcriber = Transcriber()
+        self._transcriber = Transcriber(log=self._signals.status.emit)
         self._templates = discover_templates()
         self._template_dir: Path | None = None
         self._state = "idle"

@@ -1,0 +1,22 @@
+name: build-windows
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Build executable
+        run: uv run pyinstaller --noconfirm --name MedScribe --windowed --collect-all faster_whisper gui.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MedScribe-windows
+          path: dist/MedScribe/

@@ -58,8 +58,21 @@ numeric fields, text fields, multi-value groups, computed formulas.
 - [sounddevice](https://python-sounddevice.readthedocs.io/) — audio recording
 - [PySide6](https://wiki.qt.io/PySide6) — GUI
 
+## Building on Windows
+
+```powershell
+uv sync
+uv run pyinstaller --noconfirm --name MedScribe --windowed --collect-all faster_whisper gui.py
+```
+
+Neither models nor templates are included in the artifact:
+
+- the Whisper model (~500 MB) is downloaded from Hugging Face on first launch
+  (internet required once); a pre-downloaded `models/whisper-small` folder can
+  be placed next to the exe instead;
+- a `templates/` folder must be placed next to the exe.
+
 ## TODOs
 
 - support fuzzy match accuracy dial
 - tweak aliases
-- package as a Windows executable
